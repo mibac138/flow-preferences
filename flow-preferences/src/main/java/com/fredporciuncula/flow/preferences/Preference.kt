@@ -1,7 +1,7 @@
 package com.fredporciuncula.flow.preferences
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
 
 interface Preference<T> {
 
@@ -29,3 +29,10 @@ interface Preference<T> {
 
   fun asSyncCollector(throwOnFailure: Boolean = false): FlowCollector<T>
 }
+
+/**
+ * Use when providing a default value is not desired and using `asFlow().stateIn(scope)` is
+ * not possible (`stateIn` requires to be run in a `suspend` context)
+ */
+fun <T> Preference<T>.asStateFlow(scope: CoroutineScope, started: SharingStarted): StateFlow<T> =
+  this.asFlow().stateIn(scope, started, this.defaultValue)
